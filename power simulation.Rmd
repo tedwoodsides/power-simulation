@@ -1,0 +1,37 @@
+---
+title: "Homework 6"
+author: "Ted Woodsides"
+date: "11/16/2020"
+output: html_document
+---
+
+```{r}
+sim_t_power = function(nseq,b,a,sd,nrep){
+  pvals = vector(length = nrep)
+  for (r in 1:nrep){
+    x = runif(n=nseq,min=0,max=10)
+    y = a+(b*x)+rnorm(n=nseq,sd=sd)
+    modelsim = summary(lm(y~x))
+    pvals[r] = modelsim$coefficients[2,4]
+  }
+  return(sum(pvals<.05)/nrep)
+}
+```
+
+```{r}
+LinRegPower = function(nseq,b,a,sd,nrep){
+  power1 = NULL
+  #for each combo of A and B
+  for (N in nseq){
+    #for each sample size
+    powN = vector(length=length(b))
+    for (i in seq_along(a)){
+      powN[i] = sim_t_power(N,b[i],a[i],sd,nrep)
+    }
+  power1 = rbind(power1,powN)
+  }
+  plot = {matplot(nseq,power1,type="l",col=1:length(b),lty=1:length(b),lwd=2)
+    legend("bottomright",c("a=1,b=.2","a=1,b=0.5","a=1.b=1"))}
+  return(plot)
+}
+```
